@@ -5,6 +5,10 @@ The current implementation monitors a *condiment caddy* SKU but can be adapted f
 
 ---
 
+## Demo
+[Loom Video](https://www.loom.com/share/b9e92a677ad44a4e9b93875b0f3d6a7d?sid=5787750d-bd2d-47d5-bf95-d9e264a9ad57)
+
+
 ## 🧭 Overview
 
 **SKU Price Tracker** periodically scrapes multiple online stores to retrieve the latest prices for a given product, stores them in a database, and exposes both real-time and historical data through a modern web interface.
@@ -14,6 +18,7 @@ The current implementation monitors a *condiment caddy* SKU but can be adapted f
 ## 🖥️ Frontend — Next.js
 
 - Built with **Next.js** for a fast, reactive, and server-rendered user experience.  
+- Frontend has been deployed to **Vercel** at [bhcase.vercel.app](bhcase.vercel.app) but is not connected to the backend.
 - Displays current prices from **three online shops** for the tracked SKU.  
 - Periodically fetches updated prices from the backend.  
 - Includes a **paginated price history view** for each store, enabling users to analyze trends over time.
