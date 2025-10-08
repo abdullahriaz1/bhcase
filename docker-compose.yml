@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: backhouse-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+      - api-db:/app
+    restart: unless-stopped
+
+volumes:
+  api-db:

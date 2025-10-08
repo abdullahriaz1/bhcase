@@ -59,7 +59,15 @@ export async function initBrowser() {
   if (browser) return; // Already initialized
   
   console.log('🚀 Initializing browser...');
-  browser = await chromium.launch({ headless: false });
+  browser = await chromium.launch({ 
+    headless: false,
+    args: [
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-blink-features=AutomationControlled',
+      '--window-size=1366,768'
+    ],
+});
   context = await browser.newContext();
 
   // Open all tabs
