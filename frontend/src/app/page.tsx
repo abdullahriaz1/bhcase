@@ -94,7 +94,7 @@ export default function Home() {
   return (
     <div className="min-h-screen p-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Price Tracker</h1>
+        <h1 className="text-2xl font-bold">SKU Price Tracker</h1>
         <button
           onClick={fetchPrices}
           disabled={isRefreshing}
