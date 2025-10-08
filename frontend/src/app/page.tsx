@@ -10,6 +10,12 @@ type Product = {
   productName?: string;
 };
 
+type PriceHistoryRecord = {
+  timestamp: string;
+  price: number;
+  currency: string;
+};
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([
     { name: 'Burkett', price: 0.0, currency: '$', url: '', productName: 'Product Loading' },
@@ -18,7 +24,7 @@ export default function Home() {
   ]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
-  const [priceHistory, setPriceHistory] = useState<any[]>([]);
+  const [priceHistory, setPriceHistory] = useState<PriceHistoryRecord[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
@@ -167,7 +173,7 @@ export default function Home() {
               ) : priceHistory.length > 0 ? (
                 <>
                   <div className="space-y-2 mb-4">
-                    {priceHistory.map((record: any, index: number) => (
+                    {priceHistory.map((record, index: number) => (
                       <div key={index} className="flex justify-between border-b pb-2">
                         <span>{new Date(record.timestamp).toLocaleString()}</span>
                         <span className="font-semibold">{record.currency}{record.price.toFixed(2)}</span>
