@@ -34,7 +34,8 @@ export default function Home() {
   const fetchPrices = async () => {
     setIsRefreshing(true);
     try {
-      const response = await fetch('http://localhost:8000/prices').catch(() => null);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/prices`).catch(() => null);
       if (!response) {
         console.warn('Unable to connect to API server');
         return;
@@ -56,8 +57,9 @@ export default function Home() {
     setIsLoadingHistory(true);
     try {
       const offset = page * recordsPerPage;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const response = await fetch(
-        `http://localhost:8000/price-history-paginated?site=${encodeURIComponent(site)}&offset=${offset}&limit=${recordsPerPage}`
+        `${apiUrl}/price-history-paginated?site=${encodeURIComponent(site)}&offset=${offset}&limit=${recordsPerPage}`
       ).catch(() => null);
       if (!response) {
         console.warn('Unable to connect to API server');
