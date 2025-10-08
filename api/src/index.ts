@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { initBrowser, scrapePrices, sites } from './watcher.js';
+import { getPrices } from './db.js';
 
 const fastify = Fastify({
   logger: true
@@ -14,6 +15,22 @@ await fastify.register(cors, {
 fastify.get('/prices', async (request: FastifyRequest, reply: FastifyReply) => {
   await scrapePrices();
   reply.send({ sites });
+});
+
+fastify.get('/price-history', async (request: FastifyRequest<{
+  Querystring: { site: string; limit?: string }
+}>, reply: FastifyReply) => {
+  const { site, limit } = request.query;
+  
+  if (!site) {
+    reply.code(400).send({ error: 'Site parameter is required' });
+    return;
+  }
+  
+  const limitNum = limit ? parseInt(limit, 10) : 50;
+  const priceHistory = getPrices(site, limitNum);
+  
+  reply.send({ site, priceHistory });
 });
 
 const start = async () => {

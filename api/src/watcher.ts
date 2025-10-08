@@ -1,47 +1,52 @@
 import { chromium } from 'playwright';
 import type { Page, Browser, BrowserContext } from 'playwright';
+import { recordPrice } from './db.js';
 
 type SiteConfig = {
   name: string;
   url: string;
   selector: string;
   clean?: (text: string) => string;
-  priceText: string;
+  price: number;
   productName: string;
   productSelector: string;
   productClean?: (text: string) => string;
+  currency?: string;
 };
 
 export const sites: SiteConfig[] = [
   {
-    name: 'Katom',
-    url: 'https://www.katom.com/003-88711.html',
-    selector: '.product-price-text',
-    clean: (t) => t.split(' ')[0]?.trim() || t,
-    priceText: '$0.00',
+    name: 'Burkett',
+    url: 'https://www.burkett.com/server-88711-3-compartment-condiment-caddy?srsltid=AfmBOor22mB-tLjqpcTNSkiocDV9-rGcGlB4TFqMmb-wqbUMB6u3KAyC',
+    selector: '.price-final_price .price-wrapper .price',
+    clean: (t) => t.trim(),
+    price: 0.0,
     productName: '',
-    productSelector: 'h1.product-name',
+    productSelector: 'h1.page-title .base[data-ui-id="page-title-wrapper"]',
     productClean: (t) => t.trim(),
+    currency: '',
   },
   {
     name: 'WebstaurantStore',
     url: 'https://www.webstaurantstore.com/server-wirewise-3-compartment-tiered-condiment-bar-with-1-9-size-jars-hinged-lids-and-serving-spoons/71888711.html',
     selector: '[data-testid="price-container"] .price',
     clean: (t) => t.split('/')[0]?.trim() || t,
-    priceText: '$0.00',
+    price: 0.0,
     productName: '',
     productSelector: 'h1.skip-to-main-target',
     productClean: (t) => t.trim(),
+    currency: '',
   },
   {
     name: 'RestaurantSupply',
     url: 'https://www.restaurantsupply.com/products/server-products-88711-4-81-inch-wire-3-tier-condiment-caddy-black-with-jars?variant=46300334326014',
     selector: '.price__current .price',
     clean: (t) => t.trim(),
-    priceText: '$0.00',
+    price: 0.0,
     productName: '',
     productSelector: 'h1.product-title',
     productClean: (t) => t.trim(),
+    currency: '',
   },
 ];
 
@@ -97,11 +102,30 @@ export async function scrapePrices() {
     const page = pages[i]!;
     
     const priceText = await page.textContent(site.selector);
-    let cleanPrice = 'Price not found';
-    if (priceText) cleanPrice = site.clean ? site.clean(priceText) : priceText.trim();
+    let priceValue = 0.0;
+    let currency = '';
+    
+    if (priceText) {
+      const cleanPrice = site.clean ? site.clean(priceText) : priceText.trim();
+      
+      // Extract currency symbol (first non-numeric character)
+      const currencyMatch = cleanPrice.match(/[^\d.,\s-]+/);
+      if (currencyMatch) {
+        currency = currencyMatch[0];
+      }
+      
+      // Extract numeric value from price (remove currency symbols, etc. and convert to number)
+      priceValue = parseFloat(cleanPrice.replace(/[^0-9.-]+/g, '')) || 0.0;
+    }
 
-    // Update the site's priceText in the sites array
-    site.priceText = cleanPrice;
+    // Update the site's price and currency in the sites array
+    site.price = priceValue;
+    site.currency = currency;
+    
+    // Record price in database
+    if (priceValue > 0) {
+      recordPrice(site.name, priceValue, currency || '$');
+    }
 
 		const productText = await page.textContent(site.productSelector);
 		let cleanProduct = 'Product not found';
@@ -114,7 +138,7 @@ export async function scrapePrices() {
 
   console.log('\n📊 Current prices:');
   sites.forEach(site => {
-    console.log(`  ${site.name}: ${site.priceText}`);
+    console.log(`  ${site.name}: ${site.currency}${site.price.toFixed(2)}`);
   });
   
   return sites;
